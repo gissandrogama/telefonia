@@ -3,24 +3,12 @@ defmodule Assinante do
 
   @assinantes %{:prepago => "pre.txt", :pospago => "pos.txt"}
 
-  def buscar_assinante(numero, key \\ :all) do
-    buscar(numero, key)
-  end
+  def buscar_assinante(numero, key \\ :all), do: buscar(numero, key)
 
-  defp buscar(numero, :prepago) do
-    assinantes_prepago()
-    |> Enum.find(fn assinante -> assinante.numero == numero end)
-  end
-
-  defp buscar(numero, :pospago) do
-    assinantes_pospago()
-    |> Enum.find(fn assinante -> assinante.numero == numero end)
-  end
-
-  defp buscar(numero, :all) do
-    assinantes()
-    |> Enum.find(fn assinante -> assinante.numero == numero end)
-  end
+  defp buscar(numero, :prepago), do: filtro(assinantes_prepago(), numero)
+  defp buscar(numero, :pospago), do: filtro(assinantes_pospago(), numero)
+  defp buscar(numero, :all), do: filtro(assinantes(), numero)
+  defp filtro(lista, numero), do: Enum.find(lista, &(&1.numero == numero))
 
   def assinantes(), do: read(:prepago) ++ read(:pospago)
   def assinantes_prepago(), do: read(:prepago)
@@ -45,9 +33,13 @@ defmodule Assinante do
   end
 
   def read(plano) do
-    {:ok, assinantes} = File.read(@assinantes[plano])
+    case File.read(@assinantes[plano]) do
+      {:ok, assinantes} ->
+        assinantes
+        |> :erlang.binary_to_term()
 
-    assinantes
-    |> :erlang.binary_to_term()
+      {:error, :enoent} ->
+        {:error, "Arquivo inválido"}
+    end
   end
 end
