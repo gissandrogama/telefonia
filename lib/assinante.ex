@@ -3,10 +3,28 @@ defmodule Assinante do
 
   @assinantes %{:prepago => "pre.txt", :pospago => "pos.txt"}
 
-  def buscar_assinante(numero) do
-    read(:prepago) ++ read(:pospago)
+  def buscar_assinante(numero, key \\ :all) do
+    buscar(numero, key)
+  end
+
+  defp buscar(numero, :prepago) do
+    assinantes_prepago()
     |> Enum.find(fn assinante -> assinante.numero == numero end)
   end
+
+  defp buscar(numero, :pospago) do
+    assinantes_pospago()
+    |> Enum.find(fn assinante -> assinante.numero == numero end)
+  end
+
+  defp buscar(numero, :all) do
+    assinantes()
+    |> Enum.find(fn assinante -> assinante.numero == numero end)
+  end
+
+  def assinantes(), do: read(:prepago) ++ read(:pospago)
+  def assinantes_prepago(), do: read(:prepago)
+  def assinantes_pospago(), do: read(:pospago)
 
   def cadastrar(nome, numero, cpf, plano \\ :prepago) do
     case buscar_assinante(numero) do
@@ -14,7 +32,9 @@ defmodule Assinante do
         (read(plano) ++ [%__MODULE__{nome: nome, numero: numero, cpf: cpf, plano: plano}])
         |> :erlang.term_to_binary()
         |> write(plano)
+
         {:ok, "Assinante #{nome} cadastrado com sucesso!"}
+
       _assinante ->
         {:error, "Assinante com este numero cadastrado"}
     end
