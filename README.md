@@ -1,6 +1,6 @@
 # Telefonia
 
-**TODO: Add description**
+**TODO: projeto executado no curso de elixir e phoenix da Elxpro**
 
 ## Installation
 
