@@ -121,6 +121,17 @@ defmodule Assinante do
     File.write!(@assinantes[plano], lista_assinantes)
   end
 
+  def deletar(numero) do
+    assinante = buscar_assinante(numero)
+
+    result_delete =
+      assinantes()
+      |> List.delete(assinante)
+      |> :erlang.term_to_binary()
+      |> write(assinante.plano)
+    {result_delete, "Assinante #{assinante.nome} deletado!"}
+  end
+
   def read(plano) do
     case File.read(@assinantes[plano]) do
       {:ok, assinantes} ->
