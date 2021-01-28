@@ -18,14 +18,14 @@ defmodule AssinanteTest do
     end
 
     test "criar uma conta prepago" do
-      assert Assinante.cadastrar("Gissandro", "123456", "1345678900") ==
+      assert Assinante.cadastrar("Gissandro", "123456", "1345678900", :prepago) ==
                {:ok, "Assinante Gissandro cadastrado com sucesso!"}
     end
 
     test "deve retorna erro dizendo que assinante ja esta cadastrado" do
-      assert Assinante.cadastrar("Gissandro", "123456", "1345678900")
+      assert Assinante.cadastrar("Gissandro", "123456", "1345678900", :prepago)
 
-      assert Assinante.cadastrar("Gissandro", "123456", "1345678900") ==
+      assert Assinante.cadastrar("Gissandro", "123456", "1345678900", :prepago) ==
                {:error, "Assinante com este numero cadastrado"}
     end
   end
@@ -33,21 +33,20 @@ defmodule AssinanteTest do
   describe "Testes responsveis por bucar assinantes" do
     test "buscar pospago" do
       Assinante.cadastrar("Gissandro", "123", "123", :pospago)
-
       assert Assinante.buscar_assinante("123", :pospago).nome == "Gissandro"
+      assert Assinante.buscar_assinante("123", :pospago).plano.__struct__ == Pospago
     end
 
     test "buscar prepago" do
-      Assinante.cadastrar("Luana", "123", "123")
-
+      Assinante.cadastrar("Luana", "123", "123", :prepago)
       assert Assinante.buscar_assinante("123", :prepago).nome == "Luana"
     end
   end
 
   describe "deletar" do
     test "deve deltar o assinante" do
-      Assinante.cadastrar("Luana", "123", "123")
-      Assinante.cadastrar("Henry", "1234", "321")
+      Assinante.cadastrar("Luana", "123", "123", :prepago)
+      Assinante.cadastrar("Henry", "1234", "321", :prepago)
       assert Assinante.deletar("123") == {:ok, "Assinante Luana deletado!"}
     end
   end

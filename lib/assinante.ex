@@ -25,11 +25,11 @@ defmodule Assinante do
 
       iex> Assinante.cadastrar("Henry", "123", "123123", :prepago)
       iex> Assinante.buscar_assinante("123", :prepago)
-      %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: :prepago}
+      %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditoa: 10, recarga: []}}
 
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.buscar_assinante("1234", :pospago)
-      %Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: :pospago}
+      %Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{value: nil}}
 
   """
   def buscar_assinante(numero, key \\ :all), do: buscar(numero, key)
@@ -49,8 +49,8 @@ defmodule Assinante do
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.assinantes()
       [
-         %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: :prepago},
-         %Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: :pospago}
+         %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditoa: 10, recarga: []}},
+         %Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{value: nil}}
       ]
   """
   def assinantes(), do: read(:prepago) ++ read(:pospago)
@@ -64,7 +64,7 @@ defmodule Assinante do
       iex> Assinante.cadastrar("Henry", "123", "123123", :prepago)
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.assinantes_prepago()
-      [%Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: :prepago}]
+      [%Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditoa: 10, recarga: []}}]
   """
   def assinantes_prepago(), do: read(:prepago)
 
@@ -77,7 +77,7 @@ defmodule Assinante do
       iex> Assinante.cadastrar("Henry", "123", "123123", :prepago)
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.assinantes_pospago()
-      [%Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: :pospago}]
+      [%Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{value: nil}}]
   """
   def assinantes_pospago(), do: read(:pospago)
 
@@ -98,22 +98,32 @@ defmodule Assinante do
   ## Exemplo
 
 
-      iex> Assinante.cadastrar("Henry", "123", "123123")
+      iex> Assinante.cadastrar("Henry", "123", "123123", :prepago)
       {:ok, "Assinante Henry cadastrado com sucesso!"}
 
 
   """
-  def cadastrar(nome, numero, cpf, plano \\ :prepago) do
+  def cadastrar(nome, numero, cpf, :prepago), do: cadastrar(nome, numero, cpf, %Prepago{})
+  def cadastrar(nome, numero, cpf, :pospago), do: cadastrar(nome, numero, cpf, %Pospago{})
+  def cadastrar(nome, numero, cpf, plano) do
     case buscar_assinante(numero) do
       nil ->
-        (read(plano) ++ [%__MODULE__{nome: nome, numero: numero, cpf: cpf, plano: plano}])
+        assinante = %__MODULE__{nome: nome, numero: numero, cpf: cpf, plano: plano}
+        (read(pega_plano(assinante)) ++ [assinante])
         |> :erlang.term_to_binary()
-        |> write(plano)
+        |> write(pega_plano(assinante))
 
         {:ok, "Assinante #{nome} cadastrado com sucesso!"}
 
       _assinante ->
         {:error, "Assinante com este numero cadastrado"}
+    end
+  end
+
+  defp pega_plano(assinante) do
+    case assinante.plano.__struct__ == Prepago do
+      true -> :prepago
+      false -> :pospago
     end
   end
 
