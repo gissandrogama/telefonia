@@ -1,6 +1,5 @@
 defmodule Prepago do
-
-  defstruct creditos: 10, recarga: []
+  defstruct creditos: 10, recargas: []
 
   @preco_minuto 1.45
   def fazer_chamada(numero, data, duracao) do
@@ -11,9 +10,14 @@ defmodule Prepago do
       custo <= assinante.plano.creditos ->
         plano = assinante.plano
         plano = %__MODULE__{plano | creditos: plano.creditos - custo}
-        assinante = %Assinante{assinante | plano: plano}
+
+        %Assinante{assinante | plano: plano}
+        |> Chamada.registrar(data, duracao)
+
         {:ok, "A chamada custou #{custo}, e você tem #{plano.creditos} de creditos"}
-      true -> {:error, "Saldo insuficiente, faça uma recarga."}
+
+      true ->
+        {:error, "Saldo insuficiente, faça uma recarga."}
     end
   end
 end

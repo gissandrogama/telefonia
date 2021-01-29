@@ -5,7 +5,7 @@ defmodule Assinante do
     A função mais ultilizada e a função `cadastrar/4`
   """
 
-  defstruct nome: nil, numero: nil, cpf: nil, plano: nil
+  defstruct nome: nil, numero: nil, cpf: nil, plano: nil, chamadas: []
 
   @assinantes %{:prepago => "pre.txt", :pospago => "pos.txt"}
 
@@ -25,7 +25,7 @@ defmodule Assinante do
 
       iex> Assinante.cadastrar("Henry", "123", "123123", :prepago)
       iex> Assinante.buscar_assinante("123", :prepago)
-      %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditoa: 10, recarga: []}}
+      %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditos: 10, recargas: []}}
 
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.buscar_assinante("1234", :pospago)
@@ -49,7 +49,7 @@ defmodule Assinante do
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.assinantes()
       [
-         %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditoa: 10, recarga: []}},
+         %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditos: 10, recargas: []}},
          %Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{value: nil}}
       ]
   """
@@ -64,7 +64,7 @@ defmodule Assinante do
       iex> Assinante.cadastrar("Henry", "123", "123123", :prepago)
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.assinantes_prepago()
-      [%Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditoa: 10, recarga: []}}]
+      [%Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditos: 10, recargas: []}}]
   """
   def assinantes_prepago(), do: read(:prepago)
 
@@ -105,10 +105,12 @@ defmodule Assinante do
   """
   def cadastrar(nome, numero, cpf, :prepago), do: cadastrar(nome, numero, cpf, %Prepago{})
   def cadastrar(nome, numero, cpf, :pospago), do: cadastrar(nome, numero, cpf, %Pospago{})
+
   def cadastrar(nome, numero, cpf, plano) do
     case buscar_assinante(numero) do
       nil ->
         assinante = %__MODULE__{nome: nome, numero: numero, cpf: cpf, plano: plano}
+
         (read(pega_plano(assinante)) ++ [assinante])
         |> :erlang.term_to_binary()
         |> write(pega_plano(assinante))
@@ -117,6 +119,19 @@ defmodule Assinante do
 
       _assinante ->
         {:error, "Assinante com este numero cadastrado"}
+    end
+  end
+
+  def atualizar(numero, assinante) do
+    {assinante_antigo, nova_lista} = deletar_item(numero)
+
+    case assinante.plano.__struct__ == assinante_antigo.plano.__struct__  do
+      true ->
+        (nova_lista ++ [assinante])
+        |> :erlang.term_to_binary()
+        |> write(pega_plano(assinante))
+
+      false -> {:error, "Assinante não pode alterar o plano"}
     end
   end
 
@@ -132,14 +147,23 @@ defmodule Assinante do
   end
 
   def deletar(numero) do
+    {assinante, nova_lista} = deletar_item(numero)
+
+    nova_lista
+    |> :erlang.term_to_binary()
+    |> write(assinante.plano)
+
+    {:ok, "Assinante #{assinante.nome} deletado!"}
+  end
+
+  def deletar_item(numero) do
     assinante = buscar_assinante(numero)
 
-    result_delete =
-      assinantes()
+    nova_lista =
+      read(pega_plano(assinante))
       |> List.delete(assinante)
-      |> :erlang.term_to_binary()
-      |> write(assinante.plano)
-    {result_delete, "Assinante #{assinante.nome} deletado!"}
+
+    {assinante, nova_lista}
   end
 
   def read(plano) do

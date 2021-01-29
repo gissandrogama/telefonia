@@ -17,7 +17,14 @@ defmodule PrepagoTest do
       Assinante.cadastrar("Gissandro", "8888", "12345678900", :prepago)
 
       assert Prepago.fazer_chamada("8888", DateTime.utc_now(), 3) ==
-        {:ok, "A chamada custou 4.35, e você tem 5.65 de creditos"}
+               {:ok, "A chamada custou 4.35, e você tem 5.65 de creditos"}
+    end
+
+    test "fazer uma ligação longa e não tem créditos" do
+      Assinante.cadastrar("Gissandro", "8888", "12345678900", :prepago)
+
+      assert Prepago.fazer_chamada("8888", DateTime.utc_now(), 10) ==
+               {:error, "Saldo insuficiente, faça uma recarga."}
     end
   end
 end
