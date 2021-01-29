@@ -25,7 +25,7 @@ defmodule Assinante do
 
       iex> Assinante.cadastrar("Henry", "123", "123123", :prepago)
       iex> Assinante.buscar_assinante("123", :prepago)
-      %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditos: 10, recargas: []}}
+      %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditos: 0, recargas: []}}
 
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.buscar_assinante("1234", :pospago)
@@ -49,7 +49,7 @@ defmodule Assinante do
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.assinantes()
       [
-         %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditos: 10, recargas: []}},
+         %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditos: 0, recargas: []}},
          %Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{value: nil}}
       ]
   """
@@ -64,7 +64,7 @@ defmodule Assinante do
       iex> Assinante.cadastrar("Henry", "123", "123123", :prepago)
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.assinantes_prepago()
-      [%Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditos: 10, recargas: []}}]
+      [%Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditos: 0, recargas: []}}]
   """
   def assinantes_prepago(), do: read(:prepago)
 
