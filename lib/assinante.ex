@@ -29,7 +29,7 @@ defmodule Assinante do
 
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.buscar_assinante("1234", :pospago)
-      %Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{value: nil}}
+      %Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{valor: 0}}
 
   """
   def buscar_assinante(numero, key \\ :all), do: buscar(numero, key)
@@ -50,7 +50,7 @@ defmodule Assinante do
       iex> Assinante.assinantes()
       [
          %Assinante{cpf: "123123", nome: "Henry", numero: "123", plano: %Prepago{creditos: 0, recargas: []}},
-         %Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{value: nil}}
+         %Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{valor: 0}}
       ]
   """
   def assinantes(), do: read(:prepago) ++ read(:pospago)
@@ -77,7 +77,7 @@ defmodule Assinante do
       iex> Assinante.cadastrar("Henry", "123", "123123", :prepago)
       iex> Assinante.cadastrar("Gissandro", "1234", "123123", :pospago)
       iex> Assinante.assinantes_pospago()
-      [%Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{value: nil}}]
+      [%Assinante{cpf: "123123", nome: "Gissandro", numero: "1234", plano: %Pospago{valor: 0}}]
   """
   def assinantes_pospago(), do: read(:pospago)
 
