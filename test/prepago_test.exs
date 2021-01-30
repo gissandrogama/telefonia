@@ -27,4 +27,27 @@ defmodule PrepagoTest do
                {:error, "Saldo insuficiente, faça uma recarga."}
     end
   end
+
+  describe "teste para impressão de contas" do
+    test "deve informar valores da conta do mês" do
+      Assinante.cadastrar("Gissandro", "8888", "12345678900", :prepago)
+      data_antiga = ~U[2020-12-30 00:58:59.407205Z]
+      data = DateTime.utc_now()
+      Recarga.nova(data, 10, "8888")
+      Prepago.fazer_chamada("8888", data, 3)
+      Recarga.nova(data_antiga, 10, "8888")
+      Prepago.fazer_chamada("8888", data_antiga, 3)
+
+      assinante = Assinante.buscar_assinante("8888", :prepago)
+
+      assert Enum.count(assinante.chamadas) == 2
+      assert Enum.count(assinante.plano.recargas) == 2
+
+      assinante = Prepago.imprimir_conta(data.month, data.year, "8888")
+
+      assert assinante.numero == "8888"
+      assert Enum.count(assinante.chamadas) == 1
+      assert Enum.count(assinante.plano.recargas) == 1
+    end
+  end
 end

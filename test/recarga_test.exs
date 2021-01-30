@@ -10,6 +10,10 @@ defmodule RecargaTest do
     end)
   end
 
+  test "Retornar a estrutura de recarga" do
+    assert  %Recarga{data: nil, valor: nil} = Recarga.__struct__
+  end
+
   test "deve realizar uma recarga" do
     Assinante.cadastrar("Henry", "123", "123123", :prepago)
 
