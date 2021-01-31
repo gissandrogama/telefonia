@@ -14,10 +14,10 @@ defmodule PospagoTest do
 
   test "fazer uma chamada" do
     Assinante.cadastrar("Gissandro", "8888", "12345678900", :pospago)
-    assert Pospago.fazer_chamada("8888", DateTime.utc_now(), 5) ==
-             {:ok, "A chamada feita com sucesso! duração: 5 minutos" }
-  end
 
+    assert Pospago.fazer_chamada("8888", DateTime.utc_now(), 5) ==
+             {:ok, "A chamada feita com sucesso! duração: 5 minutos"}
+  end
 
   test "deve informar valores da conta do mês" do
     Assinante.cadastrar("Gissandro", "8888", "12345678900", :pospago)

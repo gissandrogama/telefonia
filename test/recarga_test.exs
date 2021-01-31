@@ -1,5 +1,7 @@
 defmodule RecargaTest do
   use ExUnit.Case
+  doctest Recarga
+
   setup do
     File.write!("pre.txt", :erlang.term_to_binary([]))
     File.write!("pos.txt", :erlang.term_to_binary([]))
@@ -11,7 +13,7 @@ defmodule RecargaTest do
   end
 
   test "Retornar a estrutura de recarga" do
-    assert  %Recarga{data: nil, valor: nil} = Recarga.__struct__
+    assert %Recarga{data: nil, valor: nil} = Recarga.__struct__()
   end
 
   test "deve realizar uma recarga" do
@@ -23,6 +25,5 @@ defmodule RecargaTest do
     assinante = Assinante.buscar_assinante("123", :prepago)
     assert assinante.plano.creditos == 30
     assert Enum.count(assinante.plano.recargas) == 1
-
   end
 end
