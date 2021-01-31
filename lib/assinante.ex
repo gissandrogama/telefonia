@@ -122,6 +122,17 @@ defmodule Assinante do
     end
   end
 
+  @doc """
+  Função atualiza a lista de assinates com informações novas de chamadas do assinante.
+  A função recebe um assinante atualizado, deleta as informações do assinante antigas e insere
+  o assinante novamente com as novas informações.
+
+  ## Parametos da função
+
+  - numero: numero unico e caso exista pode retornar um erro;
+  - assinante: assinate com as informações de plano atualizadas;
+
+  """
   def atualizar(numero, assinante) do
     {assinante_antigo, nova_lista} = deletar_item(numero)
 
